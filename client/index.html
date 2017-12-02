@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>The Sea battle game</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <p>Перетащите мышкой корабли на игровое поле. Для установки корабля по вертикали, кликните по нему правой кнопкой мышки.</p>
+  <div id="sheeps" onclick="chooseSheep()">
+    <div>
+      <div id="fourdeck1" class="s fourdeck"></div>
+    </div>
+    <div>
+      <div id="tripledeck1" class="s tripledeck"></div>
+      <div id="tripledeck2" class="s tripledeck"></div>
+    </div>
+    <div>
+      <div id="doubledeck1" class="s doubledeck"></div>
+      <div id="doubledeck2" class="s doubledeck"></div>
+      <div id="doubledeck3" class="s doubledeck"></div>
+    </div>
+    <div>
+      <div id="singledeck1" class="s singledeck"></div>
+      <div id="singledeck2" class="s singledeck"></div>
+      <div id="singledeck3" class="s singledeck"></div>
+      <div id="singledeck4" class="s singledeck"></div>
+    </div>
+  </div>
+  <div id="fields">
+    <div id="myField"></div>
+    <div id="enemyField"></div>
+  </div>
+  <script src="./js/app.js"></script>
+</body>
+</html>
