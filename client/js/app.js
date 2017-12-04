@@ -7,8 +7,9 @@ const myField = document.querySelector('#myField'), enemyField = document.queryS
 for (i = 0; i < w; i++) {
 	for (j = 0; j < h; j++) {
 		div1 = document.createElement('div');
-		div1.id = i + '_' + j;
-		div1.classList.add(p1map[i][j] === 's' ? 's' : 'w');
+		div1.id = 'i' + i + '_' + j;
+		//div1.classList.add(p1map[i][j] === 's' ? 's' : 'w');
+		div1.classList.add('w');
 		myField.appendChild(div1);
 
 		div2 = document.createElement('div');
@@ -22,12 +23,62 @@ for (i = 0; i < w; i++) {
 	}
 }
 
-const sheeps = document.querySelector('#sheeps');
-sheeps.addEventListener('click', chooseSheep);
+let selectedShip;
+const shipsDiv = document.querySelector('#ships');
+shipsDiv.addEventListener('click', selectShip);
+myField.addEventListener('mouseover', deckOver);
+myField.addEventListener('mouseout', deckOut);
 
-function chooseSheep(event) {
-	if (event.target.classList.contains("s")) {
-		event.target.classList.toggle("selected");
+function deckOver(event) {
+	console.log(event.target.id);
+	let id = event.target.id;
+	let coord = id.substr(1).split("_");
+	let row = coord[0];
+	let column = coord[1];
+	console.log(column);
+	drawShip(row, column, selectedShip.dataset.deckCount);
+}
+
+function deckOut(event) {
+	console.log(event.target.id);
+	let id = event.target.id;
+	let coord = id.substr(1).split("_");
+	let row = coord[0];
+	let column = coord[1];
+	console.log(column);
+	clearShip(row, column, selectedShip.dataset.deckCount);
+}
+
+function drawShip(currentRow, currentColumn, deckCount) {
+	for (let i = 0; i < deckCount; i++) {
+		const column = parseInt(currentColumn) + i;
+		const ship = myField.querySelector("#i" + currentRow + "_" + column);
+		ship.classList.remove('w');
+		ship.classList.add('s');
+		console.log("#i" + currentRow + "_" + column);
+		console.log(myField.querySelector("#i" + currentRow + "_" + column));
+	}
+}
+
+function clearShip(currentRow, currentColumn, deckCount) {
+	for (let i = 0; i < deckCount; i++) {
+		const column = parseInt(currentColumn) + i;
+		const ship = myField.querySelector("#i" + currentRow + "_" + column);
+		ship.classList.remove('s');
+		ship.classList.add('w');
+		console.log("#i" + currentRow + "_" + column);
+		console.log(myField.querySelector("#i" + currentRow + "_" + column));
+	}
+}
+
+function selectShip(event) {
+	if (event.target.classList.contains("s") && selectedShip !== event.target) {
+		shipsDiv.querySelectorAll(".s").forEach(ship => {
+			ship.classList.remove("selected");
+		})
+		event.target.classList.add("selected");
+		selectedShip = event.target;
+		console.log(selectedShip);
 	}
 }
 
