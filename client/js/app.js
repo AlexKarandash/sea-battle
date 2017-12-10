@@ -87,24 +87,23 @@ function deckOver(event) {
 	if (selectedShip !== null) {
 		isCorrectPlace = checkDecksForShip(point, selectedShip.dataset.deckCount);
 		let addStyle = isCorrectPlace ? 's' : 'd';
-		drawDecks(point, selectedShip.dataset.deckCount, addStyle, 'w');
+		drawDecks(point, selectedShip.dataset.deckCount, addStyle);
 	}
 }
 
 function deckOut(event) {
 	let point = getPoint(event.target.id);
 	if (selectedShip !== null) {
-		let removeStyle = isCorrectPlace ? 's' : 'd';
 		isCorrectPlace = true;
-		drawDecks(point, selectedShip.dataset.deckCount, 'w', removeStyle);
+		drawDecks(point, selectedShip.dataset.deckCount);
 	}
 }
 
 function getPoint(id) {
-	let coord = id.substr(1).split("_");
+	let point = id.substr(1).split("_");
 	return {
-		row: coord[0],
-		column: coord[1]
+		row: point[0],
+		column: point[1]
 	};
 }
 
@@ -151,29 +150,30 @@ function checkDeckForShip(row, column) {
 	return true;
 }
 
-function drawDecks(point, deckCount, addStyle, removeStyle) {
+function drawDecks(point, deckCount, addStyle) {
 	const currentRow = point.row;
 	const currentColumn = point.column;
 	if (isHorizontalShip) {
 		for (let i = 0; i < deckCount; i++) {
 			const column = parseInt(currentColumn) + i;
-			drawDeck(currentRow, column, addStyle, removeStyle);
+			drawDeck(currentRow, column, addStyle);
 		}
 	} else {
 		for (let i = 0; i < deckCount; i++) {
 			const row = parseInt(currentRow) + i;
-			drawDeck(row, currentColumn, addStyle, removeStyle);
+			drawDeck(row, currentColumn, addStyle);
 		}
 	}
 }
 
-function drawDeck(row, column, addStyle, removeStyle) {
+function drawDeck(row, column, addStyle) {
 	if (row >= 0 && row < h && column >= 0 && column < w) {
-		if (p1map[row][column] !== 's') {
-			const ship = myField.querySelector("#i" + row + "_" + column);
-			ship.classList.remove(removeStyle);
-			ship.classList.add(addStyle);
+		if (!addStyle) {
+			addStyle = p1map[row][column] === 's' ? 's' : 'w';
 		}
+		const ship = myField.querySelector("#i" + row + "_" + column);
+		ship.classList = '';
+		ship.classList.add(addStyle);
 	}
 }
 
