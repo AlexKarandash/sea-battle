@@ -1,4 +1,4 @@
-.s, .ts {
+.s {
     background: black;
     display: inline-block
 }
@@ -9,6 +9,10 @@
 
 .selected {
     background: green;
+}
+
+.hidden {
+    display: none;
 }
 
 .d {
