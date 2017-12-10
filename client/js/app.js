@@ -1,18 +1,23 @@
 const w = 10;
 const h = 10;
-const p1map = ['~ss~~~~s~~', '~~~~~~~~~~', '~~~~s~~~~s', '~s~~~~s~~s', '~s~~~~s~~s', '~s~~~~~~~~', '~~~~~~~~s~', '~~~~ss~~~~', '~s~~~~~~~~', '~~~~ssss~~'];
+//const p1map = ['~ss~~~~s~~', '~~~~~~~~~~', '~~~~s~~~~s', '~s~~~~s~~s', '~s~~~~s~~s', '~s~~~~~~~~', '~~~~~~~~s~', '~~~~ss~~~~', '~s~~~~~~~~', '~~~~ssss~~'];
 const p2map = ['~~~s~~~~ss', '~s~s~~~~~~', '~~~s~~~~~~', '~~~s~~~s~~', '~~~~~~~s~~', '~s~~s~~s~~', '~s~~~~~~~~', '~s~s~~~~~~', '~~~~~ss~~~', 'ss~~~~~~s~'];
 
+const p1map = new Array(h);
+for (let i = 0; i < h; i++) {
+	p1map[i] = new Array(w);
+}
+
 const myField = document.querySelector('#myField'), enemyField = document.querySelector('#enemyField');
-for (i = 0; i < w; i++) {
-	for (j = 0; j < h; j++) {
-		div1 = document.createElement('div');
+for (let i = 0; i < w; i++) {
+	for (let j = 0; j < h; j++) {
+		const div1 = document.createElement('div');
 		div1.id = 'i' + i + '_' + j;
 		//div1.classList.add(p1map[i][j] === 's' ? 's' : 'w');
 		div1.classList.add('w');
 		myField.appendChild(div1);
 
-		div2 = document.createElement('div');
+		const div2 = document.createElement('div');
 		div2.classList.add(p2map[i][j] === 's' ? 's' : 'w');
 		div2.onclick = function () {
 			if (fire(this)) {
@@ -23,59 +28,63 @@ for (i = 0; i < w; i++) {
 	}
 }
 
-let selectedShip;
+let selectedShip = null;
 const shipsDiv = document.querySelector('#ships');
 shipsDiv.addEventListener('click', selectShip);
 myField.addEventListener('mouseover', deckOver);
 myField.addEventListener('mouseout', deckOut);
+myField.addEventListener('click', setShip);
+
+function setShip(event) {
+	let point = getPoint(event.target.id);
+	for (let i = 0; i < selectedShip.dataset.deckCount; i++) {
+		p1map[point.row][parseInt(point.column) + i] = 1;
+	}
+	selectedShip = null;
+	console.log(p1map);
+}
 
 function deckOver(event) {
-	console.log(event.target.id);
-	let id = event.target.id;
-	let coord = id.substr(1).split("_");
-	let row = coord[0];
-	let column = coord[1];
-	console.log(column);
-	drawShip(row, column, selectedShip.dataset.deckCount);
+	deckEventHandler(event, 'w', 's');
 }
 
 function deckOut(event) {
-	console.log(event.target.id);
-	let id = event.target.id;
-	let coord = id.substr(1).split("_");
-	let row = coord[0];
-	let column = coord[1];
-	console.log(column);
-	clearShip(row, column, selectedShip.dataset.deckCount);
+	deckEventHandler(event, 's', 'w');
 }
 
-function drawShip(currentRow, currentColumn, deckCount) {
-	for (let i = 0; i < deckCount; i++) {
-		const column = parseInt(currentColumn) + i;
-		const ship = myField.querySelector("#i" + currentRow + "_" + column);
-		ship.classList.remove('w');
-		ship.classList.add('s');
-		console.log("#i" + currentRow + "_" + column);
-		console.log(myField.querySelector("#i" + currentRow + "_" + column));
+function deckEventHandler(event, addStyle, removeStyle) {
+	let point = getPoint(event.target.id);
+	if (selectedShip !== null) {
+		drawDecks(point, selectedShip.dataset.deckCount, addStyle, removeStyle);
 	}
 }
 
-function clearShip(currentRow, currentColumn, deckCount) {
+function getPoint(id) {
+	let coord = id.substr(1).split("_");
+	return {
+		row: coord[0],
+		column: coord[1]
+	};
+}
+
+function drawDecks(point, deckCount, addStyle, removeStyle) {
+	const currentRow = point.row;
+	const currentColumn = point.column;
 	for (let i = 0; i < deckCount; i++) {
-		const column = parseInt(currentColumn) + i;
-		const ship = myField.querySelector("#i" + currentRow + "_" + column);
-		ship.classList.remove('s');
-		ship.classList.add('w');
-		console.log("#i" + currentRow + "_" + column);
-		console.log(myField.querySelector("#i" + currentRow + "_" + column));
+		if (p1map[point.row][parseInt(point.column) + i] !== 1) {
+			const column = parseInt(currentColumn) + i;
+			const ship = myField.querySelector("#i" + currentRow + "_" + column);
+			ship.classList.remove(addStyle);
+			ship.classList.add(removeStyle);
+		}
 	}
 }
 
 function selectShip(event) {
-	if (event.target.classList.contains("s") && selectedShip !== event.target) {
-		shipsDiv.querySelectorAll(".s").forEach(ship => {
+	if (event.target.classList.contains("s") && !event.target.classList.contains("selected") && selectedShip === null) {
+		/*shipsDiv.querySelectorAll(".s").forEach(ship => {
 			ship.classList.remove("selected");
-		})
+		})*/
 		event.target.classList.add("selected");
 		selectedShip = event.target;
 		console.log(selectedShip);
@@ -103,8 +112,8 @@ function fire(el) {
 }
 
 function backfire() {
-	for (i = w * h; i > 0; i--) {
-		var targets = document.querySelectorAll('#myField .s, #myField .w');
+	for (let i = w * h; i > 0; i--) {
+		const targets = document.querySelectorAll('#myField .s, #myField .w')
 		if (targets.length === 0 || fire(targets[Math.floor(Math.random() * targets.length)])) {
 			break;
 		}
