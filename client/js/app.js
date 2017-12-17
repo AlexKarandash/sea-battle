@@ -2,6 +2,30 @@ document.addEventListener('contextmenu', function (e) {
 	e.preventDefault();
 });
 
+document.querySelector('#join').addEventListener('click', onJoin);
+let name = "";
+
+function onJoin(event) {
+	event.preventDefault();
+	const href = 'https://neto-api.herokuapp.com/signin';
+	let data = {
+		email: "asdqqqqqq@asd.com",
+		password: "123"
+	};
+	const request = new XMLHttpRequest();
+	request.open('POST', href);
+	request.setRequestHeader('Content-Type', 'application/json');
+	request.addEventListener('load', onJoinLoadRequest);
+	request.send(JSON.stringify(data));
+}
+
+function onJoinLoadRequest() {
+	document.querySelector('#loginForm').classList.add('hidden');
+	name = document.querySelector('#name').value;
+	document.querySelector('#message').innerText = 'Кликните по кораблю и установите его в поле, ' + name;
+	document.querySelector('#gameField').classList.remove('hidden');
+}
+
 const w = 10;
 const h = 10;
 const p1map = new Array(h);
@@ -57,7 +81,7 @@ function setShip(event) {
 function tryToPlay() {
 	if (shipsDiv.querySelectorAll('.s:not(.selected)').length === 0) {
 		shipsDiv.classList.add('hidden');
-		document.querySelector('p').innerText = 'Игра началась, стреляйте по вражескому полю';
+		document.querySelector('#message').innerText = 'Игра началась, стреляйте по вражескому полю, ' + name;
 		drawEnemyField();
 		myField.removeEventListener('mouseover', deckOver);
 		myField.removeEventListener('mouseout', deckOut);
