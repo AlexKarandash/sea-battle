@@ -112,6 +112,7 @@ function tryToPlay() {
 		myField.removeEventListener('mouseover', deckOver);
 		myField.removeEventListener('mouseout', deckOut);
 		myField.removeEventListener('click', setShip);
+		changeStatusStep(false);
 		if (enemy !== ENEMY_HUMAN) {
 			const ws = new WebSocket('wss://neto-api.herokuapp.com/realtime');
 			ws.addEventListener('message', getSocketMessage);
