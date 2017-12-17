@@ -11,7 +11,17 @@
 <div id="loginForm">
     <form>
         <input id="name" name="name" type="text" class="input" placeholder="Ваше имя?">
-        <input id="join" type="submit" value="Играть">
+        <div>
+            <p>С кем хотите поиграть?</p>
+            <input type="radio" id="enemyHuman" name="enemy" value="human">
+            <label for="enemyHuman">Другой человек</label>
+            <input type="radio" id="enemyComputer" name="enemy" value="computer">
+            <label for="enemyComputer">Компьютер</label>
+        </div>
+        <div>
+            <br>
+            <input id="join" type="submit" value="Играть">
+        </div>
     </form>
 </div>
 <div id="gameField" class="hidden">

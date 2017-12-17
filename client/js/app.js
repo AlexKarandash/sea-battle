@@ -1,22 +1,39 @@
 document.addEventListener('contextmenu', function (e) {
 	e.preventDefault();
 });
+const ENEMY_HUMAN = 'human';
 
 document.querySelector('#join').addEventListener('click', onJoin);
-let name = "";
+let name = '';
+let enemy = ENEMY_HUMAN;
+Array.from(document.getElementsByName('enemy')).forEach(input => {
+	console.log('123');
+	input.addEventListener('change', onChangeEnemy)
+	if (input.value === enemy) {
+		input.checked = true;
+	}
+})
+
+function onChangeEnemy(event) {
+	enemy = event.target.value;
+}
 
 function onJoin(event) {
 	event.preventDefault();
-	const href = 'https://neto-api.herokuapp.com/signin';
-	let data = {
-		email: "asdqqqqqq@asd.com",
-		password: "123"
-	};
-	const request = new XMLHttpRequest();
-	request.open('POST', href);
-	request.setRequestHeader('Content-Type', 'application/json');
-	request.addEventListener('load', onJoinLoadRequest);
-	request.send(JSON.stringify(data));
+	if (enemy !== ENEMY_HUMAN) {
+		const href = 'https://neto-api.herokuapp.com/signin';
+		let data = {
+			email: "asdqqqqqq@asd.com",
+			password: "123"
+		};
+		const request = new XMLHttpRequest();
+		request.open('POST', href);
+		request.setRequestHeader('Content-Type', 'application/json');
+		request.addEventListener('load', onJoinLoadRequest);
+		request.send(JSON.stringify(data));
+	} else {
+		onJoinLoadRequest()
+	}
 }
 
 function onJoinLoadRequest() {
@@ -78,14 +95,45 @@ function setShip(event) {
 	tryToPlay();
 }
 
+let isMyStep = false;
+
+function changeStatusStep(isMy) {
+	isMyStep = isMy;
+	if (isMyStep) {
+		document.querySelector('#message').innerText = 'Cтреляйте по вражескому полю, ' + name;
+	} else {
+		document.querySelector('#message').innerText = 'Ожидайте, ' + name;
+	}
+}
+
 function tryToPlay() {
 	if (shipsDiv.querySelectorAll('.s:not(.selected)').length === 0) {
 		shipsDiv.classList.add('hidden');
-		document.querySelector('#message').innerText = 'Игра началась, стреляйте по вражескому полю, ' + name;
-		drawEnemyField();
 		myField.removeEventListener('mouseover', deckOver);
 		myField.removeEventListener('mouseout', deckOut);
 		myField.removeEventListener('click', setShip);
+		if (enemy !== ENEMY_HUMAN) {
+			const ws = new WebSocket('wss://neto-api.herokuapp.com/realtime');
+			ws.addEventListener('message', getSocketMessage);
+		} else {
+			drawEnemyField();
+			changeStatusStep(true);
+		}
+	}
+}
+
+let isFirstMesage = true;
+
+function getSocketMessage(event) {
+	let data = JSON.parse(event.data);
+	if (isFirstMesage) {
+		console.log(data);
+		drawEnemyField();
+		isFirstMesage = false;
+		changeStatusStep(true);
+	} else if (!isMyStep) {
+		console.log(data);
+		backfire();
 	}
 }
 
@@ -96,8 +144,11 @@ function drawEnemyField() {
 			const div2 = document.createElement('div');
 			div2.classList.add(p2map[i][j] === 's' ? 's' : 'w');
 			div2.onclick = function () {
-				if (fire(this)) {
-					backfire();
+				if (isMyStep && fire(this)) {
+					changeStatusStep(false);
+					if (enemy === ENEMY_HUMAN) {
+						backfire();
+					}
 				}
 			};
 			enemyField.appendChild(div2);
@@ -231,13 +282,16 @@ function fire(el) {
 }
 
 function backfire() {
-	for (let i = w * h; i > 0; i--) {
-		const targets = document.querySelectorAll('#myField .s, #myField .w')
-		if (targets.length === 0 || fire(targets[Math.floor(Math.random() * targets.length)])) {
-			break;
+	setTimeout(function () {
+		for (let i = w * h; i > 0; i--) {
+			const targets = document.querySelectorAll('#myField .s, #myField .w')
+			if (targets.length === 0 || fire(targets[Math.floor(Math.random() * targets.length)])) {
+				break;
+			}
 		}
-	}
-	if (document.querySelectorAll('#myField .s').length === 0) {
-		alert('You have lost!');
-	}
+		if (document.querySelectorAll('#myField .s').length === 0) {
+			alert('You have lost!');
+		}
+		changeStatusStep(true);
+	}, 1000);
 }
