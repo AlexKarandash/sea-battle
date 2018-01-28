@@ -10,7 +10,6 @@ document.getElementById("name").value = name;
 
 let enemy = ENEMY_HUMAN;
 Array.from(document.getElementsByName('enemy')).forEach(input => {
-	console.log('123');
 	input.addEventListener('change', onChangeEnemy)
 	if (input.value === enemy) {
 		input.checked = true;
@@ -47,6 +46,9 @@ function onJoinLoadRequest() {
 	document.querySelector('#gameField').classList.remove('hidden');
 }
 
+let myScore = 0;
+let enemyScore = 0;
+refreshStatInfo();
 const w = 10;
 const h = 10;
 const p2map = ['~~~s~~~~ss', '~s~s~~~~~~', '~~~s~~~~~~', '~~~s~~~s~~', '~~~~~~~s~~', '~s~~s~~s~~', '~s~~~~~~~~', '~s~s~~~~~~', '~~~~~ss~~~', 'ss~~~~~~s~'];
@@ -115,6 +117,7 @@ function changeStatusStep(isMy) {
 function tryToPlay() {
 	if (shipsDiv.querySelectorAll('.s:not(.selected)').length === 0) {
 		shipsDiv.classList.add('hidden');
+		document.getElementById('statInfo').classList.remove('hidden');
 		myField.removeEventListener('mouseover', deckOver);
 		myField.removeEventListener('mouseout', deckOut);
 		myField.removeEventListener('click', setShip);
@@ -134,12 +137,10 @@ let isFirstMesage = true;
 function getSocketMessage(event) {
 	let data = JSON.parse(event.data);
 	if (isFirstMesage) {
-		console.log(data);
 		enemyField.classList.remove('hidden');
 		isFirstMesage = false;
 		changeStatusStep(true);
 	} else if (!isMyStep) {
-		console.log(data);
 		backfire();
 	}
 }
@@ -186,6 +187,10 @@ function refreshEnemyField() {
 	myField.addEventListener('click', setShip);
 	changeStatusStep(true);
 	document.querySelector('#message').innerText = 'Кликните по кораблю и установите его в поле, ' + name;
+	myScore = 0;
+	enemyScore = 0;
+	refreshStatInfo();
+	document.getElementById('statInfo').classList.add('hidden');
 }
 
 function deckOver(event) {
@@ -288,7 +293,6 @@ function selectShip(event) {
 		isCorrectPlace = true;
 		event.target.classList.add("selected");
 		selectedShip = event.target;
-		console.log(selectedShip);
 	}
 }
 
@@ -301,6 +305,12 @@ function fire(el) {
 	if (classList.contains('s')) {
 		classList.remove('s');
 		classList.add('d');
+		if (isMyStep) {
+			myScore++;
+		} else {
+			enemyScore++;
+		}
+		refreshStatInfo();
 	} else {
 		classList.add('m');
 	}
@@ -312,6 +322,11 @@ function fire(el) {
 	if (classList.contains('m')) {
 		return true;
 	}
+}
+
+function refreshStatInfo() {
+	document.getElementById('myScore').innerText = "Количество ваших удачных выстрелов: " + myScore;
+	document.getElementById('enemyScore').innerText = "Количество вражеский удачных выстрелов: " + enemyScore;
 }
 
 function backfire() {
