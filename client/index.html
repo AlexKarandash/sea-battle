@@ -5,52 +5,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>The Sea battle game</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link rel="stylesheet" href="css/styles.css">
+
 </head>
 <body>
-<div id="loginForm">
-    <form>
-        <input id="name" name="name" type="text" class="input" placeholder="Ваше имя?">
-        <div>
-            <p>С кем хотите поиграть?</p>
-            <input type="radio" id="enemyHuman" name="enemy" value="human">
-            <label for="enemyHuman">Другой человек</label>
-            <input type="radio" id="enemyComputer" name="enemy" value="computer">
-            <label for="enemyComputer">Компьютер</label>
+<div class="center-div" style="width: 800px;height: 400px">
+    <div id="loginForm" class="center-div" style="width: 300px;height: 200px">
+        <form>
+            <input id="name" name="name" type="text" class="input" placeholder="Ваше имя?">
+            <div>
+                <p>С кем хотите поиграть?</p>
+                <input type="radio" id="enemyHuman" name="enemy" value="human">
+                <label for="enemyHuman">Другой человек</label>
+                <input type="radio" id="enemyComputer" name="enemy" value="computer">
+                <label for="enemyComputer">Компьютер</label>
+            </div>
+            <div>
+                <br>
+                <input id="join" class="w3-button w3-light-grey" type="submit" value="Играть">
+            </div>
+        </form>
+    </div>
+    <div id="gameField" class="center-div hidden" style="width: 500px;height: 400px; text-align: center">
+        <p id="message" style="font-size: 20px">Кликните по кораблю и установите его в поле</p>
+        <p><button id="playAgain" class="w3-button w3-light-grey hidden" onclick="refreshEnemyField()">Играть снова</button></p>
+        <div id="ships">
+            <div>
+                <div id="fourdeck1" class="s fourdeck" data-deck-count=4></div>
+            </div>
+            <div>
+                <div id="tripledeck1" class="s tripledeck" data-deck-count=3></div>
+                <div id="tripledeck2" class="s tripledeck" data-deck-count=3></div>
+            </div>
+            <div>
+                <div id="doubledeck1" class="s doubledeck" data-deck-count=2></div>
+                <div id="doubledeck2" class="s doubledeck" data-deck-count=2></div>
+                <div id="doubledeck3" class="s doubledeck" data-deck-count=2></div>
+            </div>
+            <div>
+                <div id="singledeck1" class="s singledeck" data-deck-count=1></div>
+                <div id="singledeck2" class="s singledeck" data-deck-count=1></div>
+                <div id="singledeck3" class="s singledeck" data-deck-count=1></div>
+                <div id="singledeck4" class="s singledeck" data-deck-count=1></div>
+            </div>
         </div>
-        <div>
-            <br>
-            <input id="join" type="submit" value="Играть">
-        </div>
-    </form>
-</div>
-<div id="gameField" class="hidden">
-    <p id="message">Кликните по кораблю и установите его в поле</p>
-    <div id="ships">
-        <div>
-            <div id="fourdeck1" class="s fourdeck" data-deck-count=4></div>
-        </div>
-        <div>
-            <div id="tripledeck1" class="s tripledeck" data-deck-count=3></div>
-            <div id="tripledeck2" class="s tripledeck" data-deck-count=3></div>
-        </div>
-        <div>
-            <div id="doubledeck1" class="s doubledeck" data-deck-count=2></div>
-            <div id="doubledeck2" class="s doubledeck" data-deck-count=2></div>
-            <div id="doubledeck3" class="s doubledeck" data-deck-count=2></div>
-        </div>
-        <div>
-            <div id="singledeck1" class="s singledeck" data-deck-count=1></div>
-            <div id="singledeck2" class="s singledeck" data-deck-count=1></div>
-            <div id="singledeck3" class="s singledeck" data-deck-count=1></div>
-            <div id="singledeck4" class="s singledeck" data-deck-count=1></div>
+        <div id="fields">
+            <div id="myField"></div>
+            <div id="enemyField" class="hidden"></div>
         </div>
     </div>
-    <div id="fields">
-        <div id="myField"></div>
-        <div id="enemyField" class="hidden"></div>
-    </div>
 </div>
+
 <script src="./js/app.js"></script>
 </body>
 </html>

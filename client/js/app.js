@@ -4,7 +4,10 @@ document.addEventListener('contextmenu', function (e) {
 const ENEMY_HUMAN = 'human';
 
 document.querySelector('#join').addEventListener('click', onJoin);
-let name = '';
+let myStorage = window.localStorage;
+let name = myStorage.getItem("userName");
+document.getElementById("name").value = name;
+
 let enemy = ENEMY_HUMAN;
 Array.from(document.getElementsByName('enemy')).forEach(input => {
 	console.log('123');
@@ -20,7 +23,7 @@ function onChangeEnemy(event) {
 
 function onJoin(event) {
 	event.preventDefault();
-	if (enemy !== ENEMY_HUMAN) {
+	if (enemy === ENEMY_HUMAN) {
 		const href = 'https://neto-api.herokuapp.com/signin';
 		let data = {
 			email: "asdqqqqqq@asd.com",
@@ -39,12 +42,14 @@ function onJoin(event) {
 function onJoinLoadRequest() {
 	document.querySelector('#loginForm').classList.add('hidden');
 	name = document.querySelector('#name').value;
+	myStorage.setItem("userName", name);
 	document.querySelector('#message').innerText = 'Кликните по кораблю и установите его в поле, ' + name;
 	document.querySelector('#gameField').classList.remove('hidden');
 }
 
 const w = 10;
 const h = 10;
+const p2map = ['~~~s~~~~ss', '~s~s~~~~~~', '~~~s~~~~~~', '~~~s~~~s~~', '~~~~~~~s~~', '~s~~s~~s~~', '~s~~~~~~~~', '~s~s~~~~~~', '~~~~~ss~~~', 'ss~~~~~~s~'];
 const p1map = new Array(h);
 for (let i = 0; i < h; i++) {
 	p1map[i] = new Array(w);
@@ -69,6 +74,7 @@ myField.addEventListener('mouseover', deckOver);
 myField.addEventListener('mouseout', deckOut);
 myField.addEventListener('click', setShip);
 myField.addEventListener('contextmenu', changeDirection);
+buildEnemyField();
 
 function changeDirection(event) {
 	deckOut(event);
@@ -113,11 +119,11 @@ function tryToPlay() {
 		myField.removeEventListener('mouseout', deckOut);
 		myField.removeEventListener('click', setShip);
 		changeStatusStep(false);
-		if (enemy !== ENEMY_HUMAN) {
+		if (enemy === ENEMY_HUMAN) {
 			const ws = new WebSocket('wss://neto-api.herokuapp.com/realtime');
 			ws.addEventListener('message', getSocketMessage);
 		} else {
-			drawEnemyField();
+			enemyField.classList.remove('hidden');
 			changeStatusStep(true);
 		}
 	}
@@ -129,7 +135,7 @@ function getSocketMessage(event) {
 	let data = JSON.parse(event.data);
 	if (isFirstMesage) {
 		console.log(data);
-		drawEnemyField();
+		enemyField.classList.remove('hidden');
 		isFirstMesage = false;
 		changeStatusStep(true);
 	} else if (!isMyStep) {
@@ -138,16 +144,16 @@ function getSocketMessage(event) {
 	}
 }
 
-function drawEnemyField() {
-	const p2map = ['~~~s~~~~ss', '~s~s~~~~~~', '~~~s~~~~~~', '~~~s~~~s~~', '~~~~~~~s~~', '~s~~s~~s~~', '~s~~~~~~~~', '~s~s~~~~~~', '~~~~~ss~~~', 'ss~~~~~~s~'];
+function buildEnemyField() {
 	for (let i = 0; i < w; i++) {
 		for (let j = 0; j < h; j++) {
 			const div2 = document.createElement('div');
+			div2.id = 'e' + i + '_' + j;
 			div2.classList.add(p2map[i][j] === 's' ? 's' : 'w');
 			div2.onclick = function () {
 				if (isMyStep && fire(this)) {
 					changeStatusStep(false);
-					if (enemy === ENEMY_HUMAN) {
+					if (enemy !== ENEMY_HUMAN) {
 						backfire();
 					}
 				}
@@ -155,7 +161,31 @@ function drawEnemyField() {
 			enemyField.appendChild(div2);
 		}
 	}
-	enemyField.classList.remove('hidden');
+}
+
+function refreshEnemyField() {
+	document.getElementById('playAgain').classList.add('hidden');
+	enemyField.classList.add('hidden');
+	for (let i = 0; i < w; i++) {
+		for (let j = 0; j < h; j++) {
+			let div = document.getElementById('e' + i + '_' + j);
+			div.className = '';
+			div.classList.add(p2map[i][j] === 's' ? 's' : 'w');
+
+			div = document.getElementById('i' + i + '_' + j);
+			div.className = '';
+			div.classList.add('w');
+			p1map[i][j] = '';
+		}
+	}
+	shipsDiv.querySelectorAll('.s').forEach(ship => ship.classList.remove('selected'));
+	selectedShip = null;
+	shipsDiv.classList.remove('hidden');
+	myField.addEventListener('mouseover', deckOver);
+	myField.addEventListener('mouseout', deckOut);
+	myField.addEventListener('click', setShip);
+	changeStatusStep(true);
+	document.querySelector('#message').innerText = 'Кликните по кораблю и установите его в поле, ' + name;
 }
 
 function deckOver(event) {
@@ -267,6 +297,7 @@ function fire(el) {
 	if (classList.contains('d') || classList.contains('m')) {
 		return false;
 	}
+	new Audio('sounds/AirWooshUnderwater.mp3').play();
 	if (classList.contains('s')) {
 		classList.remove('s');
 		classList.add('d');
@@ -274,7 +305,8 @@ function fire(el) {
 		classList.add('m');
 	}
 	if (document.querySelectorAll('#enemyField .s').length === 0) {
-		alert('You have won!');
+		document.querySelector('#message').innerText = 'Вы выиграли, ' + name;
+		document.querySelector('#playAgain').classList.remove('hidden');
 		return false;
 	}
 	if (classList.contains('m')) {
@@ -291,7 +323,8 @@ function backfire() {
 			}
 		}
 		if (document.querySelectorAll('#myField .s').length === 0) {
-			alert('You have lost!');
+			document.querySelector('#message').innerText = 'Вы проиграли, ' + name;
+			document.querySelector('#playAgain').classList.remove('hidden');
 		}
 		changeStatusStep(true);
 	}, 1000);
